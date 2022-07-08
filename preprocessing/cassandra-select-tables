@@ -1,0 +1,80 @@
+#CASSANDRA 
+
+#CREATE KEYSPACE BIGDATA WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3};
+
+
+###################################################################################################################################
+#QUERY1 SELECT NEW
+
+CREATE TABLE query1(
+		Unnamed int,
+        movieId int,
+        title text,
+        rating float,
+		timestamp timestamp ,
+        PRIMARY KEY(timestamp,rating));
+
+
+
+#COPY query1(Unnamed,movieId,title, rating,timestamp) FROM '/home/spetz/Downloads/archive/query1.csv' WITH HEADER = true;
+
+select title,rating from query1 where timestamp >= '2015-01-01 00:00:00.000000+0000' AND timestamp <= '2015-01-15 00:00:00.000000+0000' limit 30 ALLOW FILTERING;
+
+
+       
+###################################################################################################################################
+CREATE TABLE query2(
+        Unnamed int,
+        movieId int,
+        title text,
+        genres text,
+        rating float,
+        tag text,
+        PRIMARY KEY(movieId,title));
+
+#COPY query2(Unnamed,movieId,title, genres,rating,tag) FROM '/home/spetz/Downloads/archive/query2.csv' WITH HEADER = true;
+
+select * from query2 where title='Jumanji (1995)' ALLOW FILTERING;
+
+###################################################################################################################################
+
+CREATE TABLE query3(
+        Unnamed int,
+        movieId int,
+        title text,
+        genres text,
+        rating float,
+        years int,
+        PRIMARY KEY(genres,years));
+#COPY query3(Unnamed,movieId,title, genres,rating,years) FROM '/home/spetz/Downloads/archive/query3.csv' WITH HEADER = true; 
+select title from query3 where genres IN ('Adventure') order by years desc;
+
+###################################################################################################################################
+CREATE TABLE query4(
+        Unnamed int,
+        movieId int,
+        title text,
+        genres text,
+        rating float,
+        tag text,
+        PRIMARY KEY((rating),title));
+
+#COPY query4(Unnamed,movieId,title, genres,rating,tag) FROM '/home/spetz/Downloads/archive/query4.csv' WITH HEADER = true;
+CREATE CUSTOM INDEX employee_firstname_idx ON query4 (title) USING 'org.apache.cassandra.index.sasi.SASIIndex' WITH OPTIONS = {'mode': 'CONTAINS', 'analyzer_class': 'org.apache.cassandra.index.sasi.analyzer.StandardAnalyzer', 'case_sensitive': 'false'};
+
+select title from query4 WHERE title LIKE '%Blade%' ALLOW FILTERING;
+
+###################################################################################################################################
+CREATE TABLE query5(
+        Unnamed int,
+        movieId int,
+        title text,
+        genres text,
+        rating float,
+        tag text,
+        PRIMARY KEY((tag),rating));
+
+#COPY query5(Unnamed,movieId,title, genres,rating,tag) FROM '/home/spetz/Downloads/archive/query5.csv' WITH HEADER = true;
+
+#Select 5
+select title from query5 WHERE tag='Comedy' order by rating desc limit 20 ALLOW FILTERING;
